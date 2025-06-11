@@ -1,0 +1,152 @@
+{
+  "name": "Leave Balance",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "labelIds": [],
+          "readStatus": "read",
+          "sender": ""
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -420,
+        -20
+      ],
+      "id": "af69fb11-4b95-4421-9b49-2c29e9a545b9",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "RCvCBb1efum7Jwnu",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1rLTaB5XJ5Y5fV1jiEdoNkD_xrv08_yW1UjRXPUDaM2Y",
+          "mode": "list",
+          "cachedResultName": "Leave Balance",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rLTaB5XJ5Y5fV1jiEdoNkD_xrv08_yW1UjRXPUDaM2Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rLTaB5XJ5Y5fV1jiEdoNkD_xrv08_yW1UjRXPUDaM2Y/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -200,
+        -20
+      ],
+      "id": "bb306cd2-c77d-4d2e-a293-cfdc6ae27fc7",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "mRqi9AY0q8JdSzzw",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Act as hr domain, your task is to analyse the leave balance data of each person check for their casual leave, sick leave, earned leave and compoff, if they have leave balance, generate a mail that \"Leave Approved, if they dont have leave balance, generate email that \"Leave not approved\". \n\n{{ $json['$json.EmailEmployee ID'] }}, {{ $json.Name }}, {{ $json.Email }},{{ $json['Casual Leave'] }} , {{ $json['Sick Leave'] }}, {{ $json['Earned Leave'] }}, {{ $json['Comp Off'] }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        20,
+        -20
+      ],
+      "id": "fbef7321-d45a-4e2d-9cdb-a2c5ef84540a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        60,
+        200
+      ],
+      "id": "ab738444-c056-4507-97b5-e4322f1235a6",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "bdVu7CY7fVLKFUKo",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5183f381-209d-4167-a7f5-69e671cb227e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "31a46ab91dab1a6a5c07497b35b547c1f1e454638c9fa29492e8f52c376bd458"
+  },
+  "id": "KNOLRCjRa8VEVE8e",
+  "tags": []
+}

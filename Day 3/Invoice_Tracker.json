@@ -1,0 +1,184 @@
+{
+  "name": "Invoice Tracker",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -440,
+        0
+      ],
+      "id": "570e9201-5584-41bd-8b5f-145677aef43d",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17ClCIKFYEVKzREKUWU3TmJv1K9GBFf9JoNMBV-sqOVA",
+          "mode": "list",
+          "cachedResultName": "Invoice Tracking",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17ClCIKFYEVKzREKUWU3TmJv1K9GBFf9JoNMBV-sqOVA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17ClCIKFYEVKzREKUWU3TmJv1K9GBFf9JoNMBV-sqOVA/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -280,
+        0
+      ],
+      "id": "acbb8019-9d23-4397-a56d-189bc7c2277a",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "mRqi9AY0q8JdSzzw",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Act as invoice analyser , your task is to analyse the data of each person check for their due date and the status , if they are paid leave it , if they not paid then generate a mail to remind them if they are paid return only \"PAID\" , if they are not paid , dont mention the word \"PAID\"\n\n{{ $json['Invoice ID'] }} , {{ $json['Invoice ID'] }} ,{{ $json.Email }} ,{{ $js$json.Statuson.Amount }}, {{ $json['Due Date'] }}, {{ $json.Status }}, {{ $json['Reminder Sent'] }}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -60,
+        0
+      ],
+      "id": "f5352249-af96-4da0-9919-9fe8b3a51b54",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        220
+      ],
+      "id": "e65b877c-5484-424a-90c6-951faac1ff51",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "bdVu7CY7fVLKFUKo",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cd20b61e-928a-464c-ae76-1510da5b6b13",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "paid",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        300,
+        0
+      ],
+      "id": "6981cc5d-9ae3-4dac-a978-1ead86074e4a",
+      "name": "If"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c14668cd-53ba-4ab6-b75f-13adb09673e7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "31a46ab91dab1a6a5c07497b35b547c1f1e454638c9fa29492e8f52c376bd458"
+  },
+  "id": "Cg4bsPSJq4QquBJR",
+  "tags": []
+}
