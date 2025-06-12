@@ -1,0 +1,312 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "f54a6152-b503-4615-9edc-dd78e32b8266",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b1a3fabd-17c6-4aa5-9dc6-ee4028808712",
+      "name": "Webhook",
+      "webhookId": "f54a6152-b503-4615-9edc-dd78e32b8266"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1u6pJjPLyDtFvavwpReLLJ-D9Gf8nkwQFEKMd5Cpydzo",
+          "mode": "list",
+          "cachedResultName": "Daily Report",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1u6pJjPLyDtFvavwpReLLJ-D9Gf8nkwQFEKMd5Cpydzo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1u6pJjPLyDtFvavwpReLLJ-D9Gf8nkwQFEKMd5Cpydzo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "username",
+              "displayName": "username",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fullname",
+              "displayName": "fullname",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "meeting_title",
+              "displayName": "meeting_title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "action_items",
+              "displayName": "action_items",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "assigned_to",
+              "displayName": "assigned_to",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        380,
+        0
+      ],
+      "id": "d6060c98-65b2-4ff2-b558-385b539d286d",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "mRqi9AY0q8JdSzzw",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst bodyData = items.map((item) => item.json.body);\nreturn bodyData;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "aa1c2667-b256-4f91-bd49-bb81f15189f4",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1u6pJjPLyDtFvavwpReLLJ-D9Gf8nkwQFEKMd5Cpydzo",
+          "mode": "list",
+          "cachedResultName": "Daily Report",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1u6pJjPLyDtFvavwpReLLJ-D9Gf8nkwQFEKMd5Cpydzo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1u6pJjPLyDtFvavwpReLLJ-D9Gf8nkwQFEKMd5Cpydzo/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        600,
+        0
+      ],
+      "id": "709f2cba-f219-4edf-80e9-4d7afc4842be",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "mRqi9AY0q8JdSzzw",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Act as a productivity assistant. A team meeting was conducted where project tasks were discussed and assigned.\nThe following information has been submitted by an employee.\n\nYour task is to analyze the details and generate a concise, professional email outlining the action items, assigned tasks, and the due date.\n\nMeeting Details:\n\nName: {{ $json['fullname'] }}\n\nTopic: {{ $json['meeting_title'] }}\n\nTask Allocated: {{ $json['action_items'] }}\n\nDue Date: {{ $json['date'] }}\n\nInstructions:\n\nFormat the output as a professional email body.\n\nClearly list action items and responsibilities.\n\nMention the due date.\n\nKeep the content short, direct, and informative.\n\nDo not include a subject line.\n\nGenerate the final email content that can be sent to the employee.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        820,
+        0
+      ],
+      "id": "1e492b74-4199-4083-875a-38e4a6f6af74",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        860,
+        220
+      ],
+      "id": "0b8fe822-49e2-4c69-b206-f484d54ab219",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "bHNadc9re9eqTNEZ",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "sendTo": "={{ $('Google Sheets1').item.json['assigned_to'] }}",
+        "subject": "Approved or Disapproved",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1180,
+        0
+      ],
+      "id": "7340b44e-ca96-4e93-bf09-0de7a18fb8e8",
+      "name": "Gmail",
+      "webhookId": "35c45f6f-620f-4ef5-8c51-9dbd9d7f99ae",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "RCvCBb1efum7Jwnu",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8d1a7d0a-b79a-4df6-8125-e02a9d1b4b5a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "31a46ab91dab1a6a5c07497b35b547c1f1e454638c9fa29492e8f52c376bd458"
+  },
+  "id": "wJeuMZFox4QzOv4i",
+  "tags": []
+}
