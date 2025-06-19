@@ -1,0 +1,439 @@
+{
+  "name": "KR Status_Report",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -420,
+        -20
+      ],
+      "id": "b1775518-bbbe-4b5e-a1df-45ab8b90546d",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TW56-8XxSaC_jyWm-e8EdqiD3IYPtRW-gNf607RabgU",
+          "mode": "list",
+          "cachedResultName": "KR_Progress Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TW56-8XxSaC_jyWm-e8EdqiD3IYPtRW-gNf607RabgU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TW56-8XxSaC_jyWm-e8EdqiD3IYPtRW-gNf607RabgU/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -200,
+        -20
+      ],
+      "id": "47c99f97-1cd5-4cb2-a04f-93157ffe9d4c",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "mRqi9AY0q8JdSzzw",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI assistant analyzing progress notes from Key Results (KRs).\n\nInput:\n- List of KRs with current status and notes\n\nOutput:\n- Summary of completed KRs\n- Pending or delayed items\n- Overall success %\n- 2–3 suggestions for next quarter\n\nPlease respond in 200–300 words in a professional report style.\n\nKR Title: {{$json[\"KR Title\"]}}\nDescription: {{$json[\"Description\"]}}\nStatus: {{$json[\"Status\"]}}\nProgress: {{$json[\"Progress (%)\"]}}%\nNotes: {{$json[\"Notes\"]}}\n\nOutput a 2–3 sentence summary, include progress insights and pending action if any. \n{{ $json['KR Title'] }}\n{{ $json.Description }}\n{{ $json.Status }}\n{{ $json['Progress (%)'] }}\n{{ $json.Notes }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        20,
+        -20
+      ],
+      "id": "18368fac-3255-4e77-869e-9f7f288c31fd",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        60,
+        200
+      ],
+      "id": "ecab1cf0-8f7b-41d2-97c4-d086e9833226",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "bHNadc9re9eqTNEZ",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6c628d2a-6251-458d-8244-46d60b581358",
+              "name": "KR_Summary",
+              "value": "={\n  \"choices\": [\n    {\n      \"message\": {\n        \"content\": \"The KR 'Launch Website' is 70% complete...\"\n      }\n    }\n  ]\n}\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        400,
+        -20
+      ],
+      "id": "6d9a442c-4761-45d6-999a-0f62ca352c26",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Google Sheets').item.json['Email ID'] }}",
+        "subject": "KR_Summary",
+        "message": "=KR Status Chart:<br>\n<img src=\"https://quickchart.io/chart?c=%7B%22type%22%3A%20%22pie%22%2C%20%22data%22%3A%20%7B%22labels%22%3A%20%5B%22Completed%22%2C%20%22Pending%22%5D%2C%20%22datasets%22%3A%20%5B%7B%22data%22%3A%20%5B5%2C%203%5D%7D%5D%7D%7D\" width=\"400\" />\nHi Team, please find the attached Q2 KR pie chart progress report.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        580,
+        220
+      ],
+      "id": "4031e85f-7046-4583-a642-72797a81d4bf",
+      "name": "Gmail",
+      "webhookId": "71dd4034-6e8c-4a02-8717-51e10beb405d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "RCvCBb1efum7Jwnu",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"my_field_1\": \"completed: 5\",\n  \"my_field_2\": \"pending: 3\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        760,
+        -20
+      ],
+      "id": "5ec54bfe-b52a-4221-bbd5-a3c1a46e99de",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "16a763f4-6322-48da-9264-c737114b4f24",
+              "name": "completedKRs",
+              "value": "5",
+              "type": "string"
+            },
+            {
+              "id": "5c31d64f-c893-474d-b604-250fa7f028dd",
+              "name": "pendingKRs",
+              "value": "3",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        920,
+        -20
+      ],
+      "id": "2142f2b7-a4ec-494b-83ed-2e058278a682",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const completed = $json[\"completedKRs\"];\nconst pending = $json[\"pendingKRs\"];\n\nconst chartConfig = {\n  type: 'pie',\n  data: {\n    labels: ['Completed', 'Pending'],\n    datasets: [{\n      data: [completed, pending]\n    }]\n  }\n};\n\nconst chartUrl = `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify(chartConfig))}`;\n\nreturn [\n  {\n    json: {\n      chart_url: chartUrl\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1140,
+        240
+      ],
+      "id": "da731b26-f815-404c-97e5-7efc412c70cc",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8bc48941-87fc-4d68-93f7-a76af591bc92",
+              "name": "summaryText",
+              "value": "2 KRs completed, 1 pending",
+              "type": "string"
+            },
+            {
+              "id": "946994fc-ec32-4572-8bc5-47552065c8e6",
+              "name": "chart_url",
+              "value": "QuickChart pie/bar chart URL",
+              "type": "string"
+            },
+            {
+              "id": "467a6f96-c173-4ee7-8e24-bb60f0cf6d4e",
+              "name": "nextSuggestions",
+              "value": "Focus on automation goals in Q3",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1320,
+        -20
+      ],
+      "id": "40701943-fb12-49c8-8c51-5a8e80301a17",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "html": "<h2>KR Summary Report</h2>\n\n<p><strong>Summary:</strong><br>\n{{ $json[\"summaryText\"] }}</p>\n\n<p><strong>KR Status Chart:</strong><br>\n<img src=\"{{ $json[\"chart_url\"] }}\" width=\"400\" /></p>\n\n<p><strong>Next Quarter Suggestions:</strong><br>\n{{ $json[\"nextSuggestions\"] }}</p>\n"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        1680,
+        -20
+      ],
+      "id": "a8914c52-5956-46fe-b468-c6b0643e835c",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "url": "http://api.pdflayer.com/api/convert",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "access_key\t",
+              "value": "4b44e06e8b9472b872cf78e32bff8a96"
+            },
+            {
+              "name": "document_html",
+              "value": "<h1>KR Summary Report</h1><p><strong>Summary:</strong> 2 KRs completed, 1 pending, 1 In progress</p><img src='https://quickchart.io/chart?c={type:\"pie\",data:{labels:[\"Completed\",\"Pending\",\"In Progress\"],datasets:[{data:[2,1,1]}]}}' width='400'><p><strong>Next Quarter Suggestions:</strong> Focus on automation goals in Q3</p>"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1480,
+        -20
+      ],
+      "id": "1599848d-1d54-4bc7-8bfa-c7a00fcc5c0c",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "sendTo": "da3.iqac@snsgroups.com",
+        "subject": "KR Progress Report – Q2",
+        "emailType": "text",
+        "message": "Hi Team, please find the attached Q2 KR progress report.",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          },
+          "replyToSenderOnly": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1840,
+        -20
+      ],
+      "id": "9786ffee-b693-43b2-ae6d-c8510b6933cb",
+      "name": "Gmail1",
+      "webhookId": "23472fd8-3c48-4b1b-988f-db7718767a8a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "RCvCBb1efum7Jwnu",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        []
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Gmail1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c88aae63-fe14-4ac5-9830-e308ed3f5ea4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "31a46ab91dab1a6a5c07497b35b547c1f1e454638c9fa29492e8f52c376bd458"
+  },
+  "id": "nX3jL0KWajHddgSd",
+  "tags": []
+}

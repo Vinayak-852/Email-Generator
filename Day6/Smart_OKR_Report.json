@@ -1,0 +1,251 @@
+{
+  "name": "Smart OKR Report",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        60,
+        80
+      ],
+      "id": "6f11da55-3c52-4ac0-b790-e589212ae8cd",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1bFErcWfnMBR9FAWLGdbrjXxVRT2YTMy2N55YlHszkjo",
+          "mode": "list",
+          "cachedResultName": "Untitled spreadsheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bFErcWfnMBR9FAWLGdbrjXxVRT2YTMy2N55YlHszkjo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bFErcWfnMBR9FAWLGdbrjXxVRT2YTMy2N55YlHszkjo/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        280,
+        80
+      ],
+      "id": "1ec0dbcc-0e26-4a2c-92b9-9925270e1e71",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "mRqi9AY0q8JdSzzw",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are an AI assistant helping to prepare a quarterly OKR summary report.\n\nBelow is a table of Objectives, Key Results, their progress %, and notes. Your tasks are:\n1. Summarize each Key Result concisely.\n2. Highlight overall success rate (average %).\n3. List pending or underperforming KRs (progress < 75%).\n\nFormat the output with:\n- Summary of each objective and its key results.\n- Overall completion rate.\n- Pending Key Results.\n\nData:\n{{ $json[\"Objective Name\"] }} - {{ $json[\"Key Result\"] }} (Progress: {{ $json[\"Progress %\"] }})\nNotes: {{ $json[\"Notes\"] }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        500,
+        80
+      ],
+      "id": "980999b1-4d71-4d41-9de2-958d475eb3a6",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        340
+      ],
+      "id": "9b1df83c-7b21-40bc-ba8a-35463ab6f6fc",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "bHNadc9re9eqTNEZ",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI assistant that creates visual charts for OKR progress reporting.\n\nBased on the following data:\n- Each row contains an Objective, Key Result, and Progress %.\n\nYour tasks:\n1. Generate a bar chart showing progress % for each Key Result.\n2. Generate a pie chart showing:\n   - Completed KRs (≥ 75%)\n   - In Progress (50–74%)\n   - Behind (< 50%)\n3. Provide titles for the charts and label each KR clearly.\n\nInput Data:\n{{$json.output}}\n\nUse QuickChart.io URLs to create the charts as images and return an HTML block that includes:\n- The bar chart\n- The pie chart\n- A short summary of what the charts show\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        860,
+        80
+      ],
+      "id": "c5a11c78-64cd-42e2-8154-93a641c4de11",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "html": "<html>\n  <head>\n    <style>\n      body { font-family: Arial; padding: 20px; }\n      h1 { color: #2c3e50; }\n      .summary { margin-bottom: 20px; }\n      .chart { margin-bottom: 30px; }\n    </style>\n  </head>\n  <body>\n    <h1>Quarter-End OKR Report – Q2 2025</h1>\n\n    <div class=\"summary\">\n      <h2>📌 Summary</h2>\n      <p>{{ $json[\"summary\"] }}</p>\n    </div>\n\n    <div class=\"chart\">\n      <h2>📊 Bar Chart (Progress %)</h2>\n      <img src=\"data:image/png;base64,{{ $json[\"bar_chart\"] }}\" width=\"600\"/>\n    </div>\n\n    <div class=\"chart\">\n      <h2>🧩 Pie Chart (Status Distribution)</h2>\n      <img src=\"data:image/png;base64,{{ $json[\"pie_chart\"] }}\" width=\"600\"/>\n    </div>\n\n    <footer>\n      <p>Prepared Automatically by Agentic AI + n8n</p>\n    </footer>\n  </body>\n</html>\n"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        1220,
+        80
+      ],
+      "id": "4175ec9c-c5dc-4c54-a7c9-af67b8a61aca",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=📌 Objective 1: Improve Customer Satisfaction\n- KR1: Achieve 90% positive customer feedback – ✅ Completed (85%)\n- KR2: Reduce response time to under 2 hours – ⚠️ Pending (65%)\n\n📌 Objective 2: Increase Revenue\n- KR1: Increase sales by 15% – ⚠️ In Progress (70%)\n- KR2: Launch new pricing model – ✅ Completed (90%)\n\n📌 Objective 3: Enhance Product Quality\n- KR1: Reduce product bugs by 30% – ⚠️ Partially Met (60%)\n- KR2: Improve user onboarding experience – ❌ Delayed (50%)\n\n📊 Overall Completion Summary:\n- Average Completion: 70%\n- Total KRs: 6 | ✅ Completed: 2 | ⚠️ In Progress: 3 | ❌ Delayed: 1\n\n🔍 Pending or Underperforming KRs:\n- Reduce response time (65%)\n- Reduce product bugs (60%)\n- Improve onboarding (50%)\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        80
+      ],
+      "id": "27527b8e-18b1-45d4-ac52-2dde8e27589b",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "sendTo": "da8.iqac@snsgroups.com",
+        "subject": "Quarter-End OKR Report – Q2 2025",
+        "message": "=Dear Team,  Please find attached the automated Quarter-End OKR Report for Q2 2025. The report includes:  - Summary of key results and progress - Success metrics and pending items - Visual charts (progress breakdown) - Suggestions for next quarter  This report was generated using Agentic AI + n8n automation workflow.  Best regards,   Vadivu (Data Analyst)",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1800,
+        80
+      ],
+      "id": "75c009d2-6cfe-43bd-9efc-2b8359ff166e",
+      "name": "Gmail",
+      "webhookId": "1504764a-d572-4e48-a3df-239f94678fbc",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "RCvCBb1efum7Jwnu",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8d5fca16-203a-49a6-9df8-f5bbb58b56ae",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "31a46ab91dab1a6a5c07497b35b547c1f1e454638c9fa29492e8f52c376bd458"
+  },
+  "id": "D6bKblOGwC2a88DJ",
+  "tags": []
+}
