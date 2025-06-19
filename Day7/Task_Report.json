@@ -1,0 +1,309 @@
+{
+  "name": "Task Report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "months",
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -440,
+        -20
+      ],
+      "id": "4faa52f2-43f0-4fe7-95b6-f059e7e24f82",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1mr3NV9L_4J7KnY8koJwwn_DvNW25-63Z3woiFbQavw0",
+          "mode": "list",
+          "cachedResultName": "Untitled spreadsheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mr3NV9L_4J7KnY8koJwwn_DvNW25-63Z3woiFbQavw0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mr3NV9L_4J7KnY8koJwwn_DvNW25-63Z3woiFbQavw0/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -220,
+        -20
+      ],
+      "id": "18e9d631-c15b-4d07-94e1-1b5b44fe2e79",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "mRqi9AY0q8JdSzzw",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        40,
+        200
+      ],
+      "id": "fddbf90e-af7f-4245-8f8e-529c0bdfd0d2",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "bdVu7CY7fVLKFUKo",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "da3.iqac@snsgroups.com",
+        "subject": "Mentor Task Summary – June",
+        "message": "=<h2>📋 Mentor Task Summary</h2>\n\n\n",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        800,
+        -40
+      ],
+      "id": "429f2f3b-6022-4eb3-b423-8cc0926e3989",
+      "name": "Gmail",
+      "webhookId": "1f22ca83-892b-4ec3-886e-b5adeab91a28",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "RCvCBb1efum7Jwnu",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "default",
+        "title": "={{ $('Google Sheets').item.json.row_number }}_{{ $('Google Sheets').item.json.Dept }}"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        360,
+        -20
+      ],
+      "id": "6492701e-795d-4502-8b3a-3720a79bb1c0",
+      "name": "Google Docs",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "CyhLAxNxNmxirai9",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $('Task Checker').item.json.output }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        440,
+        160
+      ],
+      "id": "f2f3b0e4-211b-47b7-a471-9beb668259a1",
+      "name": "Google Docs1",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "CyhLAxNxNmxirai9",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.documentId }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        600,
+        20
+      ],
+      "id": "52509aaa-2dd5-4269-9769-ed7966237aab",
+      "name": "Google Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "ugbsFShG6WmtmcyC",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an assistant analyzing monthly mentor task data from SNS.\n\nEach mentor has 4 tasks to complete:\n1. CLT – Submit Teaching Video  \n2. CFC – Submit Journal or Patent  \n3. IIPC1 – Connect with 2 people on LinkedIn  \n4. IIPC2 – Write a LinkedIn Article\n\nYour job is:\n- Check each mentor's status on these tasks  \n- Count how many tasks are: Completed / Partially Completed / Not Completed  \n- Identify which tasks are incomplete or partially done  \n- Summarize the result in one line per mentor\n\nUse this format:\n<Faculty Name> has completed <X>/4 tasks. Missing or incomplete: <list task codes like CLT, IIPC2>\n\nHere is the summary:\n{{$json['Faculty Name']}}, {{ $json.Dept }}, {{ $json['CLT (Teaching Video)'] }}, {{ $json['CFC (Journals/Patents)'] }}, {{ $json['IIPC1 (2 LinkedIn Connects)'] }}, {{ $json['IIPC2 (LinkedIn Article)'] }}\n\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        0,
+        -20
+      ],
+      "id": "e2508e7e-c2a3-4fc4-9d13-4566dda72c2b",
+      "name": "Task Checker"
+    },
+    {
+      "parameters": {
+        "jsCode": "const facultyData = $(\"Google Sheets\")\n  .all()\n  .map((item) => item.json);\nconst updatedFacultyData = facultyData.map((faculty) => {\n  return {\n    \"Faculty Name\": faculty[\"Faculty Name\"],\n    Dept: faculty[\"Dept\"],\n    Email: faculty[\"Email\"],\n    \"CLT (Teaching Video)\": faculty[\"CLT (Teaching Video)\"],\n    \"CFC (Journals/Patents)\": faculty[\"CFC (Journals/Patents)\"],\n    \"IIPC1 (2 LinkedIn Connects)\": faculty[\"IIPC1 (2 LinkedIn Connects)\"],\n    \"IIPC2 (LinkedIn Article)\": faculty[\"IIPC2 (LinkedIn Article)\"],\n  };\n});\nreturn updatedFacultyData;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        320
+      ],
+      "id": "8e0f2fc4-726c-4fb1-8aa5-067830f5fa73",
+      "name": "Report Maker"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Task Checker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Task Checker",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Docs": {
+      "main": [
+        [
+          {
+            "node": "Google Docs1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Docs1": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Task Checker": {
+      "main": [
+        [
+          {
+            "node": "Google Docs",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Report Maker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Report Maker": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8a18ac3c-e694-4838-a366-b8ec1aac7b1e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "31a46ab91dab1a6a5c07497b35b547c1f1e454638c9fa29492e8f52c376bd458"
+  },
+  "id": "BHy98RogFpjLAARg",
+  "tags": []
+}
